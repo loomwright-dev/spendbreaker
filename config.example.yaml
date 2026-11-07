@@ -1,0 +1,76 @@
+# spendbreaker config. Secrets NEVER go here: reference env var NAMES via *_env.
+state_file: ~/.local/state/spendbreaker/state.json
+warn_at: 0.8                # warn at 80% of a cap
+
+anomaly:                    # per-provider override possible under providers.<name>.anomaly
+  enabled: true
+  multiplier: 3.0           # alert when hourly spend rate > 3x trailing median rate
+  window_samples: 168       # trailing samples (~7 days at hourly polling)
+  min_samples: 6            # need this much history first
+  min_hourly_amount: 1.0    # ignore anomalies below 1.00/hour
+  cooldown_hours: 6
+
+total:                      # optional caps across all providers (assumes same currency)
+  daily_cap: 100
+  monthly_cap: 1000
+
+alerts:
+  stdout: true
+  telegram:                 # reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID
+    bot_token_env: TELEGRAM_BOT_TOKEN
+    chat_id_env: TELEGRAM_CHAT_ID
+  # ntfy:
+  #   server: https://ntfy.sh
+  #   topic_env: NTFY_TOPIC
+  #   access_token_env: NTFY_ACCESS_TOKEN
+
+# Master switch for destructive/blocking actions. Default OFF. Even when ON, a provider
+# only breaks if it has a `break:` block below, and only on the listed event kinds.
+break:
+  enabled: false
+
+providers:
+  openai:
+    key_env: OPENAI_ADMIN_KEY      # Admin key (sk-admin-...)
+    daily_cap: 30
+    monthly_cap: 400
+    # project_ids: [proj_abc]
+    # break:
+    #   action: delete_project_api_keys   # IRREVERSIBLE
+    #   project_id: proj_abc
+    #   key_ids: [key_abc]
+    #   confirm_irreversible: true
+    #   on: [daily_breach, monthly_breach]
+
+  anthropic:
+    key_env: ANTHROPIC_ADMIN_KEY   # Admin key (sk-ant-admin...)
+    daily_cap: 30
+    monthly_cap: 400
+    # break:
+    #   action: deactivate_api_keys       # reversible in Console
+    #   key_ids: [apikey_abc]
+    #   on: [daily_breach, anomaly]
+
+  cloudflare:
+    enabled: false
+    key_env: CLOUDFLARE_API_TOKEN  # token with Account Analytics:Read
+    account_id_env: CLOUDFLARE_ACCOUNT_ID
+    price_per_million_requests: 0.30
+    included_requests_per_month: 10000000
+    monthly_cap: 50
+
+  vercel:
+    enabled: false
+    key_env: VERCEL_TOKEN
+    # team_id: team_abc
+    monthly_cap: 100
+    # break:
+    #   action: pause_projects
+    #   project_ids: [prj_abc]
+
+  aws:
+    enabled: false                 # Cost Explorer: $0.01 per request
+    key_env: AWS_ACCESS_KEY_ID
+    secret_env: AWS_SECRET_ACCESS_KEY
+    min_interval_minutes: 360
+    monthly_cap: 200

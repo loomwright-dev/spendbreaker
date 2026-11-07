@@ -1,0 +1,2 @@
+# m h dom mon dow  command   (env file holds exported KEY=value lines, chmod 600)
+7 * * * *  . $HOME/.config/spendbreaker/env && cd $HOME/src/spendbreaker && python3 -m spendbreaker check -c $HOME/.config/spendbreaker/spendbreaker.yaml >> $HOME/.local/state/spendbreaker/log 2>&1

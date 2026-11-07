@@ -1,0 +1,11 @@
+[Unit]
+Description=spendbreaker one-shot spend check
+
+[Service]
+Type=oneshot
+# Put secrets in an env file readable only by you (chmod 600). Never in the YAML.
+EnvironmentFile=%h/.config/spendbreaker/env
+ExecStart=/usr/bin/python3 -m spendbreaker check -c %h/.config/spendbreaker/spendbreaker.yaml
+WorkingDirectory=%h/.local/share/spendbreaker
+NoNewPrivileges=true
+PrivateTmp=true

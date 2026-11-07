@@ -1,0 +1,21 @@
+[project]
+name = "spendbreaker"
+version = "0.1.0"
+description = "Self-hosted spend watchdog and optional circuit breaker for usage-billed APIs (OpenAI, Anthropic, Cloudflare, Vercel, AWS)."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = ["PyYAML>=5.4"]
+
+[project.optional-dependencies]
+aws = ["boto3>=1.26"]
+
+[project.scripts]
+spendbreaker = "spendbreaker.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["spendbreaker", "spendbreaker.providers"]
