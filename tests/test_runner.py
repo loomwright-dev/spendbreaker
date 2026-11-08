@@ -63,6 +63,16 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(len(json.load(f)["providers"]["openai"]["samples"]), 2)
         self.assertEqual(oct(os.stat(self.state).st_mode & 0o777), "0o600")
 
+    def test_stdout_only_is_never_marked_sent(self):
+        # Without a working push channel the alert must repeat, not be silently suppressed.
+        http, t = fake_client(self.base_routes(Costs(12.0)))
+        cfg = {"providers": {"openai": {"daily_cap": 10}}}
+        rep = self.run_(cfg, http)
+        self.assertEqual(rep["sent"], [])
+        self.assertTrue(any("no push alert channel" in e for e in rep["errors"]))
+        rep2 = self.run_(cfg, http, now=NOW + dt.timedelta(hours=1))
+        self.assertTrue(any(e["provider"] == "openai" for e in rep2["events"]))
+
     def test_break_off_by_default_even_when_configured(self):
         http, t = fake_client(self.base_routes(Costs(), anth_cents=5000))
         cfg = {"providers": {"anthropic": {"daily_cap": 10, "break": {"action": "deactivate_api_keys",

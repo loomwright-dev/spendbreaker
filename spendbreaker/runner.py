@@ -101,10 +101,13 @@ def run_once(cfg, now=None, http=None, env=None, state_path=None, dry_run=False,
         report["events"].append({"kind": ev.kind, "provider": ev.provider, "message": ev.message})
         if not engine.should_send(ev, st["sent"], now):
             continue
-        # Mark as sent only if a push sink delivered it (or stdout is all we have),
-        # so a Telegram/ntfy outage means we retry next pass instead of going silent.
+        # Mark as sent only if a push sink delivered it, so a Telegram/ntfy outage or missing push
+        # credentials means we retry next pass instead of going silent. Stdout alone never counts.
         remote = [s for s in sinks if s.name != "stdout"]
-        delivered = not remote and bool(sinks)
+        if not remote:
+            report["errors"].append("no push alert channel available (check Telegram/ntfy settings); "
+                                    "alerts are only printed and will repeat every run")
+        delivered = False
         for s in sinks:
             try:
                 s.send(ev)
