@@ -25,7 +25,7 @@ you on **Telegram** or **ntfy**. If you explicitly turn it on, it can also pull 
 | OpenAI | Admin API `GET /v1/organization/costs` (Admin key) | daily buckets; minutes-to-hours lag | `delete_project_api_keys` - **irreversible**, needs `confirm_irreversible: true` | shape per public docs, mocked tests |
 | Anthropic | Admin API `GET /v1/organizations/cost_report` (Admin key) | daily buckets; recent hours may lag | `deactivate_api_keys` (`status: inactive`, reversible in Console) | shape per public docs, mocked tests |
 | Cloudflare | GraphQL Analytics `workersInvocationsAdaptive` | daily; **estimate only** | none (no official off switch) | estimate = Workers requests x the price you configure |
-| Vercel | REST `GET /v1/billing/charges` (FOCUS JSONL) | daily; lag set by Vercel | `pause_projects` (`POST /v1/projects/{id}/pause`) | **least verified** - written from docs |
+| Vercel | REST `GET /v1/billing/charges` (FOCUS JSONL) | daily; lag set by Vercel | `pause_projects` (`POST /v1/projects/{id}/pause`); off unless `experimental: true` | **least verified** - written from docs |
 | AWS | Cost Explorer `GetCostAndUsage` (DAILY) | up to ~24h lag | none (use AWS Budgets Actions inside AWS) | **costs $0.01 per request**; polled every 6h by default |
 
 ### Providers / signals we deliberately do not cover

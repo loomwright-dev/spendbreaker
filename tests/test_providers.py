@@ -3,7 +3,7 @@ import unittest
 import urllib.parse
 
 from spendbreaker.http import HTTPError, Response
-from spendbreaker.providers import (AnthropicProvider, AWSProvider, CloudflareProvider, OpenAIProvider,
+from spendbreaker.providers import (AnthropicProvider, BreakNotSupported, AWSProvider, CloudflareProvider, OpenAIProvider,
                                     ProviderError, VercelProvider)
 
 from .helpers import NOW, block_network, fake_client, ts
@@ -130,8 +130,15 @@ class VercelTest(unittest.TestCase):
     def test_pause(self):
         http, t = fake_client({("POST", "https://api.vercel.com/v1/projects/"): {}})
         VercelProvider({"team_id": "team_1"}, http, env={"VERCEL_TOKEN": "v"}).do_break(
-            {"action": "pause_projects", "project_ids": ["prj_1"]})
+            {"action": "pause_projects", "project_ids": ["prj_1"], "experimental": True})
         self.assertIn("/v1/projects/prj_1/pause?teamId=team_1", t.calls[0]["url"])
+
+    def test_pause_refused_without_opt_in(self):
+        http, t = fake_client({("POST", "https://api.vercel.com/v1/projects/"): {}})
+        with self.assertRaises(BreakNotSupported):
+            VercelProvider({"team_id": "team_1"}, http, env={"VERCEL_TOKEN": "v"}).do_break(
+                {"action": "pause_projects", "project_ids": ["prj_1"]})
+        self.assertEqual(t.calls, [])
 
 
 class FakeCE:

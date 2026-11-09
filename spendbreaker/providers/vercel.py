@@ -52,6 +52,9 @@ class VercelProvider(Provider):
         projects = action_cfg.get("project_ids") or []
         if not projects:
             raise ProviderError("vercel: break needs project_ids")
+        # Never validated against a live account: refuse real pauses unless explicitly opted in.
+        if not dry_run and not action_cfg.get("experimental"):
+            raise BreakNotSupported("vercel: pause_projects is unvalidated; set experimental: true to enable")
         out = []
         for p in projects:
             url = f"{BASE}/v1/projects/{p}/pause"
