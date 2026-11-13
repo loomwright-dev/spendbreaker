@@ -18,6 +18,8 @@ you on **Telegram** or **ntfy**. If you explicitly turn it on, it can also pull 
 > accounts yet. Treat it as a second line of defence, read the code before giving it admin keys,
 > and please open an issue when a provider's response shape differs from what is assumed here.
 
+> **Want this hosted?** A managed version (no server, history and alerts included, $9/month) is being considered. Join the waitlist by reacting 👍 on [issue #1](https://github.com/loomwright-dev/spendbreaker/issues/1).
+
 ## What it watches
 
 | Provider | API used (read-only) | Granularity / lag | Optional break action | Status |
